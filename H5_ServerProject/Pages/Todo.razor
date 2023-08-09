@@ -1,0 +1,102 @@
+﻿
+@page "/todo"
+@using System.Security.Claims
+@using H5_ServerProject.Entity;
+@inject AuthenticationStateProvider AuthenticationStateProvider; 
+@using H5_ServerProject.Services;
+@inject IToDoService ToDoItemService;
+@inject IGuid GuidService;
+
+<h3>Todo</h3>
+    <h1>@userId</h1>
+<input type="text" placeholder="todo title" @bind="@item.Title" />
+<input type="text" placeholder="todo description" @bind="@item.Description" />
+<button type="button" @onclick="Save">AddToDo</button>
+<table class="table">
+    <thead>
+  <tr>
+        <th>Id </th>
+        <th>Title </th>
+        <th>Description  </th>
+  </tr>
+    </thead>
+
+<tbody>
+    @foreach (var todo in todos)
+    {
+        <tr>
+            <td>@todo.Id</td>
+            <td> @todo.Title </td>
+
+            <td> @todo.Description </td>
+                <td>
+                    <button type="button" @onclick="()=> UpdateToDo(todo)">
+                        <a class="nav-link" >
+                        <span class="oi oi-pencil" aria-hidden="true">Edit</span>
+                    </a></button>
+                    <button type="button" @onclick="()=> DeleteToDo(todo)"><a class="nav-link">
+                        <span class="oi oi-trash" aria-hidden="true">Delete</span>
+                        </a>
+                    </button>
+                </td>
+        </tr>
+       
+    }
+</tbody>
+
+</table>
+
+@code {
+    public Guid userId;
+    private List<ToDoItem> todos = new List<ToDoItem>();
+
+    override  protected async  Task OnInitializedAsync()
+    {
+        userId = await GuidService.GetGuidID();
+        todos = await ToDoItemService.LoadToDoList(userId);
+
+
+    }
+    ToDoItem item = new ToDoItem();
+    protected async void Save()
+    {
+        if (item.Id == 0)
+        {
+            item.User_Id = userId;
+
+            await ToDoItemService.CreateToDoItem(item);
+            //todos = await ToDoItemService.LoadToDoList(userId);
+        }
+        else
+        {
+            await ToDoItemService.EditToDoItem(item);
+            //todos = await ToDoItemService.LoadToDoList(userId);
+        }
+        todos = await ToDoItemService.LoadToDoList(userId);
+        item = new ToDoItem();
+             StateHasChanged();
+
+    }
+
+    protected async void UpdateToDo(ToDoItem edititem)
+    {
+        item = new()
+            {
+                Id = edititem.Id,
+                Title = edititem.Title,
+                Description = edititem.Description,
+                User_Id = edititem.User_Id,
+                IsDone = edititem.IsDone
+
+             
+            };
+    }
+    protected async void DeleteToDo(ToDoItem deleteItem)
+    {
+        await ToDoItemService.DeleteToDoItem(deleteItem);
+        todos = await ToDoItemService.LoadToDoList(userId);
+       
+    }
+   
+    
+}

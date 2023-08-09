@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\H5_ServerProject.props" />
+</Project>
