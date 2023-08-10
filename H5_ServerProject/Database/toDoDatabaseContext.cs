@@ -14,7 +14,7 @@ namespace H5_ServerProject.Database
                    Id= 1,
                    Title = "Title1",
                    Description = "Description1",
-                   IsDone = true,
+                   
                    User_Id= Guid.Parse("35e39329-3a7a-4e35-9978-90bedc762867")
 
 

@@ -4,10 +4,10 @@ using H5_ServerProject.Entity;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace H5_ServerProject.Services
 {
-
     public interface IToDoService
     {
 
@@ -23,13 +23,13 @@ namespace H5_ServerProject.Services
         private readonly toDoDatabaseContext _context;
         private readonly IDataProtector _dataprotector;
 
+        
+        
+
         public ToDoItemService(toDoDatabaseContext context, IDataProtectionProvider dataProtectionProvider)
         {
             _context = context;
             _dataprotector= dataProtectionProvider.CreateProtector("PURPOSE");
-
-
-
 
         }
 
@@ -72,21 +72,19 @@ namespace H5_ServerProject.Services
         }
 
 
-        public static byte[] PBKDF2Hash(string input, byte[] salt)
-        {
-            // Generate the hash
-            Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(input, salt, iterations: 5000);
-            return pbkdf2.GetBytes(20); //20 bytes length is 160 bits
-        }
+       
         public async Task EditToDoItem(ToDoItem item)
         {
             ToDoItem updateToDo = await _context.ToDos.FirstOrDefaultAsync(a => a.Id== item.Id);
-            if (updateToDo != null)
+            if (item!=null)
             {
+
                 updateToDo.Title=_dataprotector.Protect(item.Title);
                 updateToDo.Description=_dataprotector.Protect(item.Description);
-                //_context.ToDos.Entry(item).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
+                        //_context.ToDos.Entry(item).State = EntityState.Modified;
+                        await _context.SaveChangesAsync();
+                    
+                                  
             }
             //return item;
         }

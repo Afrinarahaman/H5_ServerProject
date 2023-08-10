@@ -4,8 +4,12 @@
 @using H5_ServerProject.Entity;
 @inject AuthenticationStateProvider AuthenticationStateProvider; 
 @using H5_ServerProject.Services;
+@using System.Security.Cryptography;
 @inject IToDoService ToDoItemService;
 @inject IGuid GuidService;
+@using System.Text;
+
+
 
 <h3>Todo</h3>
     <h1>@userId</h1>
@@ -49,7 +53,9 @@
 @code {
     public Guid userId;
     private List<ToDoItem> todos = new List<ToDoItem>();
-
+    byte[] tmpSourceTitle;
+    byte[] tmpHashTitle;
+    byte[] tmpNewHashTitle;
     override  protected async  Task OnInitializedAsync()
     {
         userId = await GuidService.GetGuidID();
@@ -69,27 +75,51 @@
         }
         else
         {
-            await ToDoItemService.EditToDoItem(item);
-            //todos = await ToDoItemService.LoadToDoList(userId);
+            if (tmpHashTitle.Length == tmpNewHashTitle.Length)
+            {
+                int i = 0;
+                while ((i < tmpNewHashTitle.Length) && (tmpNewHashTitle[i] == tmpHashTitle[i]))
+                {
+                    i += 1;
+                }
+                if (i == tmpNewHashTitle.Length)
+                {
+                    await ToDoItemService.EditToDoItem(item);
+                    
+
+                }
+            }
+            
         }
         todos = await ToDoItemService.LoadToDoList(userId);
         item = new ToDoItem();
-             StateHasChanged();
+        StateHasChanged();
 
     }
 
     protected async void UpdateToDo(ToDoItem edititem)
     {
+        
         item = new()
             {
                 Id = edititem.Id,
                 Title = edititem.Title,
                 Description = edititem.Description,
                 User_Id = edititem.User_Id,
-                IsDone = edititem.IsDone
+                
 
-             
+
             };
+
+        //converting item string to byte
+        tmpSourceTitle = ASCIIEncoding.ASCII.GetBytes(item.Title);
+        //making hashing of the byte itemtitle
+        tmpHashTitle = new MD5CryptoServiceProvider().ComputeHash(tmpSourceTitle);
+        // converting item form list (i) string to byte
+        tmpSourceTitle = ASCIIEncoding.ASCII.GetBytes(edititem.Title);
+        //hashing the new i.title from the list
+        tmpNewHashTitle = new MD5CryptoServiceProvider().ComputeHash(tmpSourceTitle);
+       
     }
     protected async void DeleteToDo(ToDoItem deleteItem)
     {
