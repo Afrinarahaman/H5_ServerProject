@@ -75,14 +75,14 @@ namespace H5_ServerProject.Services
        
         public async Task EditToDoItem(ToDoItem item)
         {
-            ToDoItem updateToDo = await _context.ToDos.FirstOrDefaultAsync(a => a.Id== item.Id);
+            //ToDoItem updateToDo = await _context.ToDos.FirstOrDefaultAsync(a => a.Id== item.Id);
             if (item!=null)
             {
 
-                updateToDo.Title=_dataprotector.Protect(item.Title);
-                updateToDo.Description=_dataprotector.Protect(item.Description);
-                        //_context.ToDos.Entry(item).State = EntityState.Modified;
-                        await _context.SaveChangesAsync();
+                item.Title=_dataprotector.Protect(item.Title);
+                item.Description=_dataprotector.Protect(item.Description);
+                _context.ToDos.Entry(item).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
                     
                                   
             }
