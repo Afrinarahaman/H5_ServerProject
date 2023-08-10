@@ -55,8 +55,12 @@
     private List<ToDoItem> todos = new List<ToDoItem>();
     byte[] tmpSourceTitle1 = new byte[32];
     byte[] tmpSourceTitle2 = new byte[32];
+    byte[] tmpSourceDes1 = new byte[32];
+    byte[] tmpSourceDes2 = new byte[32];
     string tmpHashTitle = "";
     string tmpNewHashTitle = "";
+    string tmpHashDescription = "";
+    string tmpNewHashDescription = "";
     override  protected async  Task OnInitializedAsync()
     {
         userId = await GuidService.GetGuidID();
@@ -70,8 +74,10 @@
     { 
         //converting item string to byte
         tmpSourceTitle1 = ASCIIEncoding.ASCII.GetBytes(item.Title);
+        tmpSourceDes1 = ASCIIEncoding.ASCII.GetBytes(item.Description);
         //making hashing of the byte itemtitle
         tmpHashTitle =Convert.ToHexString( new MD5CryptoServiceProvider().ComputeHash(tmpSourceTitle1));
+        tmpHashDescription =Convert.ToHexString(new MD5CryptoServiceProvider().ComputeHash(tmpSourceDes1));
 
         if (item.Id == 0)
         {
@@ -82,7 +88,7 @@
         }
         else
         {
-            if (tmpHashTitle!=tmpNewHashTitle)
+            if (tmpHashTitle != tmpNewHashTitle || tmpHashDescription != tmpNewHashDescription)
             {
                
                     await ToDoItemService.EditToDoItem(item);
@@ -116,8 +122,10 @@
         
         // converting item form list (i) string to byte
         tmpSourceTitle2 = ASCIIEncoding.ASCII.GetBytes(edititem.Title);
+        tmpSourceDes2 = ASCIIEncoding.ASCII.GetBytes(edititem.Description);
         //hashing the new i.title from the list
         tmpNewHashTitle =Convert.ToHexString( new MD5CryptoServiceProvider().ComputeHash(tmpSourceTitle2));
+        tmpNewHashDescription =Convert.ToHexString(new MD5CryptoServiceProvider().ComputeHash(tmpSourceDes2));
        
     }
     protected async void DeleteToDo(ToDoItem deleteItem)
